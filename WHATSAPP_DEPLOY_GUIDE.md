@@ -50,7 +50,7 @@
 3. اضغط **New Variable** لإضافة متغير جديد:
    * **الاسم (Name):**
      ```
-     APP_WHATSAPP_SERVICE_URL
+     WHATSAPP_SERVICE_URL
      ```
    * **القيمة (Value):**
      الربط الداخلي لـ Railway (استبدل `service-name` باسم خدمة الواتساب الظاهر في لوحة تحكم Railway):
