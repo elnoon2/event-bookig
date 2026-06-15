@@ -1,0 +1,12 @@
+# Keep the Docker build context small and the image clean.
+**/node_modules
+whatsapp-service
+backend/target
+**/*.log
+.git
+.vscode
+*.bat
+*.sh
+microsoft-env.*
+test_user.json
+*.md
