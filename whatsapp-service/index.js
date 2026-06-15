@@ -193,6 +193,9 @@ async function startWhatsAppClient() {
                 }
             } catch (err) {
                 log('ERROR', 'AUTH', `Failed to request pairing code: ${err.message}`);
+                log('INFO', 'AUTH', '──── FALLBACK QR CODE ────');
+                log('INFO', 'AUTH', 'Scan this QR code with WhatsApp → Settings → Linked Devices:');
+                qrcode.generate(qr, { small: true });
             }
         } else {
             log('INFO', 'AUTH', '──── NEW QR CODE ────');
