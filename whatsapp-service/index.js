@@ -176,10 +176,29 @@ async function startWhatsAppClient() {
 
     // ── Event handlers ──
 
-    client.on('qr', (qr) => {
-        log('INFO', 'AUTH', '──── NEW QR CODE ────');
-        log('INFO', 'AUTH', 'Scan this QR code with WhatsApp → Settings → Linked Devices:');
-        qrcode.generate(qr, { small: true });
+    client.on('qr', async (qr) => {
+        const pairingPhone = process.env.PAIRING_PHONE_NUMBER;
+        if (pairingPhone) {
+            log('INFO', 'AUTH', `PAIRING MODE ENABLED for phone: ${pairingPhone}`);
+            try {
+                const formattedPhone = formatPhoneNumber(pairingPhone);
+                if (formattedPhone) {
+                    const code = await client.requestPairingCode(formattedPhone);
+                    log('INFO', 'AUTH', '════════════════════════════════════════════════');
+                    log('INFO', 'AUTH', `🔑 YOUR WHATSAPP PAIRING CODE IS: ${code}`);
+                    log('INFO', 'AUTH', 'Go to WhatsApp -> Linked Devices -> Link with phone number instead and enter this code.');
+                    log('INFO', 'AUTH', '════════════════════════════════════════════════');
+                } else {
+                    log('ERROR', 'AUTH', `Failed to format pairing phone number: ${pairingPhone}`);
+                }
+            } catch (err) {
+                log('ERROR', 'AUTH', `Failed to request pairing code: ${err.message}`);
+            }
+        } else {
+            log('INFO', 'AUTH', '──── NEW QR CODE ────');
+            log('INFO', 'AUTH', 'Scan this QR code with WhatsApp → Settings → Linked Devices:');
+            qrcode.generate(qr, { small: true });
+        }
         reconnectAttempts = 0;
     });
 
