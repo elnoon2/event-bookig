@@ -15,6 +15,9 @@ let isReady = false;
 let isInitializing = false;
 let reconnectAttempts = 0;
 let latestQr = null;
+let pairingCodeRequested = false;
+let latestPairingCode = null;
+let latestPairingCodeTimestamp = 0;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
 // ─── Logging helper ───────────────────────────────────────────────────────────
@@ -139,6 +142,10 @@ async function startWhatsAppClient() {
     }
     isInitializing = true;
     isReady = false;
+    pairingCodeRequested = false;
+    latestPairingCode = null;
+    latestPairingCodeTimestamp = 0;
+    latestQr = null;
 
     log('INFO', 'INIT', '═══════════════════════════════════════════════════');
     log('INFO', 'INIT', 'Preparing to initialize WhatsApp client...');
@@ -181,11 +188,20 @@ async function startWhatsAppClient() {
         latestQr = qr;
         const pairingPhone = process.env.PAIRING_PHONE_NUMBER;
         if (pairingPhone) {
-            log('INFO', 'AUTH', `PAIRING MODE ENABLED for phone: ${pairingPhone}`);
+            const now = Date.now();
+            if (latestPairingCode && (now - latestPairingCodeTimestamp < 120000)) {
+                log('INFO', 'AUTH', `Pairing code ${latestPairingCode} is still valid. Waiting for user to enter it...`);
+                return;
+            }
+            
+            pairingCodeRequested = true;
+            log('INFO', 'AUTH', `PAIRING MODE ENABLED for phone: ${pairingPhone}. Requesting new pairing code...`);
             try {
                 const formattedPhone = formatPhoneNumber(pairingPhone);
                 if (formattedPhone) {
                     const code = await client.requestPairingCode(formattedPhone);
+                    latestPairingCode = code;
+                    latestPairingCodeTimestamp = Date.now();
                     log('INFO', 'AUTH', '════════════════════════════════════════════════');
                     log('INFO', 'AUTH', `🔑 YOUR WHATSAPP PAIRING CODE IS: ${code}`);
                     log('INFO', 'AUTH', 'Go to WhatsApp -> Linked Devices -> Link with phone number instead and enter this code.');
@@ -195,9 +211,8 @@ async function startWhatsAppClient() {
                 }
             } catch (err) {
                 log('ERROR', 'AUTH', `Failed to request pairing code: ${err.message}`);
-                log('INFO', 'AUTH', '──── FALLBACK QR CODE ────');
-                log('INFO', 'AUTH', 'Scan this QR code with WhatsApp → Settings → Linked Devices:');
-                qrcode.generate(qr, { small: true });
+                // Set timestamp to now on failure to prevent immediate spamming of retries
+                latestPairingCodeTimestamp = Date.now();
             }
         } else {
             log('INFO', 'AUTH', '──── NEW QR CODE ────');
@@ -224,6 +239,8 @@ async function startWhatsAppClient() {
         isReady = true;
         isInitializing = false;
         reconnectAttempts = 0;
+        latestPairingCode = null;
+        latestPairingCodeTimestamp = 0;
     });
 
     client.on('auth_failure', async (msg) => {
@@ -368,21 +385,142 @@ app.get('/qr', (req, res) => {
             <head>
                 <title>WhatsApp Connected</title>
                 <style>
-                    body { font-family: Arial, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
-                    .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
-                    h2 { color: #075e54; margin-bottom: 10px; }
-                    p { color: #666; }
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
+                    .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
+                    .icon { font-size: 50px; color: #25D366; margin-bottom: 20px; }
+                    h2 { color: #075e54; margin: 0 0 10px 0; }
+                    p { color: #666; font-size: 16px; line-height: 1.5; }
                 </style>
             </head>
             <body>
                 <div class="container">
-                    <h2>✅ WhatsApp is Connected!</h2>
-                    <p>The service is running and ready to send notifications.</p>
+                    <div class="icon">✅</div>
+                    <h2>WhatsApp Connected</h2>
+                    <p>The WhatsApp service is connected and ready to send booking notifications.</p>
                 </div>
             </body>
             </html>
         `);
     }
+
+    const pairingPhone = process.env.PAIRING_PHONE_NUMBER;
+    if (pairingPhone) {
+        if (!latestPairingCode) {
+            return res.send(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Generating Pairing Code</title>
+                    <meta http-equiv="refresh" content="5">
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
+                        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
+                        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #25D366; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+                        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                        h2 { color: #075e54; margin: 0 0 10px 0; }
+                        p { color: #666; font-size: 16px; line-height: 1.5; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="spinner"></div>
+                        <h2>Generating Pairing Code...</h2>
+                        <p>Requesting a pairing code for <strong>${pairingPhone}</strong>. This page will refresh automatically.</p>
+                    </div>
+                </body>
+                </html>
+            `);
+        }
+
+        return res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>WhatsApp Pairing Code</title>
+                <meta http-equiv="refresh" content="15">
+                <style>
+                    body {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100vh;
+                        margin: 0;
+                        background-color: #f0f2f5;
+                    }
+                    .container {
+                        background: white;
+                        padding: 40px;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        text-align: center;
+                        max-width: 450px;
+                    }
+                    h2 { color: #075e54; margin: 0 0 15px 0; }
+                    p { color: #555; font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+                    .code-box {
+                        font-family: 'Courier New', Courier, monospace;
+                        font-size: 36px;
+                        letter-spacing: 6px;
+                        background: #e7f5f2;
+                        color: #075e54;
+                        padding: 15px 25px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                        font-weight: bold;
+                        border: 2px dashed #075e54;
+                        display: inline-block;
+                    }
+                    .instructions {
+                        text-align: left;
+                        background: #fafafa;
+                        padding: 20px;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        border: 1px solid #eee;
+                    }
+                    .instructions strong {
+                        display: block;
+                        margin-bottom: 10px;
+                        color: #333;
+                    }
+                    .instructions ol {
+                        margin: 0;
+                        padding-left: 20px;
+                    }
+                    .instructions li {
+                        margin-bottom: 8px;
+                        color: #555;
+                    }
+                    .footer-text {
+                        font-size: 12px;
+                        color: #888;
+                        margin-top: 25px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h2>WhatsApp Pairing Code</h2>
+                    <p>Use this code to connect your WhatsApp account to the event booking system.</p>
+                    <div class="code-box">${latestPairingCode}</div>
+                    <div class="instructions">
+                        <strong>Follow these steps on your phone:</strong>
+                        <ol>
+                            <li>Open <strong>WhatsApp</strong>.</li>
+                            <li>Go to <strong>Settings</strong> &rarr; <strong>Linked Devices</strong>.</li>
+                            <li>Tap <strong>Link a Device</strong>.</li>
+                            <li>Tap <strong>Link with phone number instead</strong>.</li>
+                            <li>Enter the code shown above.</li>
+                        </ol>
+                    </div>
+                    <p class="footer-text">This page refreshes automatically every 15 seconds to fetch a new code if this one expires.</p>
+                </div>
+            </body>
+            </html>
+        `);
+    }
+
     if (!latestQr) {
         return res.send(`
             <!DOCTYPE html>
@@ -391,22 +529,25 @@ app.get('/qr', (req, res) => {
                 <title>WhatsApp Connecting</title>
                 <meta http-equiv="refresh" content="5">
                 <style>
-                    body { font-family: Arial, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
-                    .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
-                    h2 { color: #e57373; margin-bottom: 10px; }
-                    p { color: #666; }
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
+                    .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
+                    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #25D366; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                    h2 { color: #075e54; margin: 0 0 10px 0; }
+                    p { color: #666; font-size: 16px; line-height: 1.5; }
                 </style>
             </head>
             <body>
                 <div class="container">
-                    <h2>⏳ Please Wait...</h2>
-                    <p>Generating pairing session. This page will refresh automatically.</p>
+                    <div class="spinner"></div>
+                    <h2>Generating QR Code...</h2>
+                    <p>Please wait. The page will reload automatically.</p>
                 </div>
             </body>
             </html>
         `);
     }
-    
+
     res.send(`
         <!DOCTYPE html>
         <html>
@@ -415,9 +556,8 @@ app.get('/qr', (req, res) => {
             <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
             <style>
                 body {
-                    font-family: Arial, sans-serif;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     display: flex;
-                    flex-direction: column;
                     align-items: center;
                     justify-content: center;
                     height: 100vh;
@@ -426,26 +566,28 @@ app.get('/qr', (req, res) => {
                 }
                 .container {
                     background: white;
-                    padding: 30px;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    padding: 40px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                     text-align: center;
+                    max-width: 400px;
                 }
                 #qrcode {
                     display: flex;
                     justify-content: center;
-                    margin: 20px 0;
+                    margin: 25px 0;
                 }
-                h2 { color: #075e54; }
-                p { color: #555; }
+                h2 { color: #075e54; margin: 0 0 10px 0; }
+                p { color: #555; font-size: 15px; line-height: 1.5; }
+                .footer-text { font-size: 12px; color: #888; margin-top: 20px; }
             </style>
         </head>
         <body>
             <div class="container">
-                <h2>Scan this QR Code with WhatsApp</h2>
-                <p>Go to WhatsApp -> Linked Devices -> Link a Device</p>
+                <h2>Scan QR Code</h2>
+                <p>Open WhatsApp on your phone and scan the code below to connect.</p>
                 <div id="qrcode"></div>
-                <p style="font-size: 12px; color: #888;">Will refresh automatically when a new code is generated.</p>
+                <p class="footer-text">This page refreshes automatically when a new code is generated.</p>
             </div>
             <script>
                 new QRCode(document.getElementById("qrcode"), {
@@ -457,7 +599,6 @@ app.get('/qr', (req, res) => {
                     correctLevel : QRCode.CorrectLevel.H
                 });
                 
-                // Refresh automatically every 15 seconds to fetch new QR if regenerated
                 setTimeout(() => {
                     location.reload();
                 }, 15000);
