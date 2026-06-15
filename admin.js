@@ -766,7 +766,14 @@
 
         try {
             html5QrCode = new Html5Qrcode("scanner-reader");
-            const config = { fps: 5, qrbox: { width: 250, height: 250 } };
+            const config = { 
+                fps: 5, 
+                qrbox: (width, height) => {
+                    const min = Math.min(width, height);
+                    const size = Math.floor(min * 0.7);
+                    return { width: size, height: size };
+                }
+            };
             
             try {
                 await html5QrCode.start(

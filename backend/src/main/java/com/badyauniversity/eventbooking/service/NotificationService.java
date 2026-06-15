@@ -103,7 +103,7 @@ public class NotificationService {
             return;
         }
 
-        String qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + java.net.URLEncoder.encode(attendanceToken, java.nio.charset.StandardCharsets.UTF_8);
+        String qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=" + java.net.URLEncoder.encode(attendanceToken, java.nio.charset.StandardCharsets.UTF_8);
         
         String message = "Booking Confirmed!\n\n" +
                "Hello " + student.getName() + ",\n" +

@@ -423,7 +423,7 @@
                     throw new Error('Fallback to external API');
                 } catch {
                     // Fallback to QR server
-                    linkQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(profileUrl)}`;
+                    linkQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=${encodeURIComponent(profileUrl)}`;
                     linkQrImg.hidden = false;
                     linkQrFallback.hidden = true;
                 }
@@ -492,7 +492,7 @@
                     // Fallback to QR server - encode a valid scan URL using user's static token/id
                     const fallbackToken = user.qrToken || user.id || 'unknown-user';
                     const fallbackUrl = `${API_BASE_URL}/attendance/scan?token=${encodeURIComponent(fallbackToken)}`;
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fallbackUrl)}`;
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=${encodeURIComponent(fallbackUrl)}`;
                     qrImg.hidden = false;
                     qrFallback.hidden = true;
                     if (expiryEl) {

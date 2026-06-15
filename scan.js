@@ -39,7 +39,14 @@
 
         try {
             html5Qr = new Html5Qrcode('reader');
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            const config = { 
+                fps: 10, 
+                qrbox: (width, height) => {
+                    const min = Math.min(width, height);
+                    const size = Math.floor(min * 0.7);
+                    return { width: size, height: size };
+                }
+            };
             const onSuccess = (decodedText) => onScan(decodedText);
             const onError = () => {}; // per-frame decode misses are normal; ignore
 
