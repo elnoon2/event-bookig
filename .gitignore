@@ -1,0 +1,39 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Node / WhatsApp Service
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*.DS_Store
+
+# Local session data for WhatsApp
+whatsapp-service/sessions/
+whatsapp-service/node_modules/
+whatsapp-service/.wwebjs_cache/
+
+# Uploaded media (local dev only)
+backend/uploads/
+
+# Test artifacts
+test_cf.log
+
+# Microsoft OAuth secrets (real, filled-in copy — never commit)
+microsoft-env.sh
+microsoft-env.bat
+
+# H2 database data
+backend/data/
+

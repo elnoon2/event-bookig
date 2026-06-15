@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QR Pass Scanner — Badya Uni Events</title>
+    <link rel="stylesheet" href="scan.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+    <header class="scan-header">
+        <h1>QR Pass Scanner</h1>
+        <a class="scan-back" href="index.html">← Site</a>
+    </header>
+
+    <main class="scan-main">
+        <!-- Scanner -->
+        <section id="scanner-section" class="scan-card">
+            <div id="reader" class="scan-reader"></div>
+            <p id="scan-status" class="scan-status">Press “Start camera” and point it at a QR code.</p>
+            <div class="scan-actions">
+                <button type="button" id="btn-start" class="btn btn-primary">Start camera</button>
+                <button type="button" id="btn-stop" class="btn btn-ghost" hidden>Stop</button>
+            </div>
+
+            <details class="scan-fallback">
+                <summary>Can’t use the camera?</summary>
+                <label class="scan-field">Scan from an image file
+                    <input type="file" id="file-input" accept="image/*">
+                </label>
+                <label class="scan-field">Or paste the QR text
+                    <input type="text" id="manual-input" placeholder="BADYAQR1.xxxx.yyyy">
+                </label>
+                <button type="button" id="btn-manual" class="btn btn-secondary">Validate pasted code</button>
+            </details>
+        </section>
+
+        <!-- Loading -->
+        <section id="loading-section" class="scan-card scan-center" hidden>
+            <div class="spinner" aria-hidden="true"></div>
+            <p>Validating…</p>
+        </section>
+
+        <!-- Result -->
+        <section id="result-section" class="scan-card scan-center" hidden>
+            <div id="result-icon" class="result-icon">✓</div>
+            <h2 id="result-title">Valid</h2>
+            <p id="result-message" class="result-message"></p>
+            <dl id="result-details" class="result-details"></dl>
+            <button type="button" id="btn-scan-next" class="btn btn-primary">Scan next</button>
+        </section>
+
+        <!-- Camera permission blocked -->
+        <section id="permission-section" class="scan-card scan-center" hidden>
+            <div class="result-icon result-warn">⚠</div>
+            <h2>Camera unavailable</h2>
+            <p id="permission-message" class="result-message">
+                We couldn’t access your camera. Allow camera permission in your browser, or use a fallback below.
+            </p>
+            <button type="button" id="btn-retry-camera" class="btn btn-primary">Try camera again</button>
+            <div class="scan-fallback-open">
+                <label class="scan-field">Scan from an image file
+                    <input type="file" id="file-input-2" accept="image/*">
+                </label>
+                <label class="scan-field">Or paste the QR text
+                    <input type="text" id="manual-input-2" placeholder="BADYAQR1.xxxx.yyyy">
+                </label>
+                <button type="button" id="btn-manual-2" class="btn btn-secondary">Validate pasted code</button>
+            </div>
+        </section>
+
+        <!-- Issue a test pass (demo) -->
+        <details class="scan-card scan-issue">
+            <summary>Issue a test pass (admin/demo)</summary>
+            <label class="scan-field">Holder name
+                <input type="text" id="issue-name" placeholder="e.g. Adham Mohammed">
+            </label>
+            <label class="scan-field">Subject type
+                <input type="text" id="issue-type" placeholder="ACCESS / TICKET / USER" value="ACCESS">
+            </label>
+            <label class="scan-field">TTL seconds (optional)
+                <input type="number" id="issue-ttl" placeholder="86400">
+            </label>
+            <button type="button" id="btn-issue" class="btn btn-secondary">Issue &amp; show QR</button>
+            <div id="issue-result" class="issue-result" hidden>
+                <img id="issue-qr" class="issue-qr" alt="Issued QR pass">
+                <p class="issue-hint">Scan this with the camera above to test the full flow.</p>
+            </div>
+        </details>
+    </main>
+
+    <script src="scan.js"></script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badya Uni Events - Book Your University Events</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="data:image/png;base64,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" alt="Logo" class="logo-img">
+                Badya Uni Events
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <button type="button" id="ms-header-signin" class="ms-login-btn ms-login-btn-compact" aria-label="Sign in with Microsoft">
+                    <svg class="ms-logo" width="18" height="18" viewBox="0 0 21 21" aria-hidden="true" focusable="false">
+                        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                    </svg>
+                    <span class="ms-login-label">Sign in with Microsoft</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home">
+            <div class="hero-content">
+                <h1>Discover Amazing Events at Badya University</h1>
+                <p>Book tickets for lectures, workshops, sports events, and cultural activities</p>
+                <button class="cta-button">Explore Events</button>
+            </div>
+        </section>
+
+        <section id="dashboard" class="home-dashboard" aria-labelledby="dashboard-heading">
+            <div class="home-dashboard-inner">
+                <h2 id="dashboard-heading">Events dashboard</h2>
+                <p class="home-dashboard-lead">Upcoming event dates from the schedule</p>
+                <div class="home-dashboard-grid">
+                    <div class="home-dash-panel home-dash-by-date">
+                        <h3 class="home-dash-panel-title">By date</h3>
+                        <ul id="dashboard-date-list" class="dashboard-date-list" aria-live="polite"></ul>
+                        <p id="dashboard-date-empty" class="home-dash-empty" hidden>No upcoming events with dates.</p>
+                    </div>
+                    <div class="home-dash-panel home-dash-calendar-wrap">
+                        <h3 class="home-dash-panel-title">Calendar</h3>
+                        <div class="home-dash-cal-nav">
+                            <button type="button" class="home-dash-cal-nav-btn" id="home-dash-cal-prev" aria-label="Previous month"><span id="home-dash-cal-prev-lbl"></span></button>
+                            <span class="home-dash-cal-month" id="home-dash-cal-month-lbl"></span>
+                            <button type="button" class="home-dash-cal-nav-btn" id="home-dash-cal-next" aria-label="Next month"><span id="home-dash-cal-next-lbl"></span></button>
+                        </div>
+                        <div class="home-dash-cal-weekdays" aria-hidden="true">
+                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                        </div>
+                        <div id="home-dash-cal-grid" class="home-dash-cal-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="events">
+            <h2>Upcoming Events</h2>
+            <div class="category-tabs">
+                <button class="tab-btn active" data-category="all">All Events</button>
+                <button class="tab-btn" data-category="academic">Academic</button>
+                <button class="tab-btn" data-category="sports">Sports</button>
+                <button class="tab-btn" data-category="cultural">Cultural</button>
+                <button class="tab-btn" data-category="social">Social</button>
+                <button class="tab-btn" data-category="workshop">Workshop</button>
+            </div>
+            <div class="event-grid" id="event-grid">
+                <!-- Events will be loaded dynamically -->
+            </div>
+        </section>
+
+        <section id="categories">
+            <h2>Event Categories</h2>
+            <div class="categories-grid">
+                <div class="category-card" data-category="academic">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Academic</h3>
+                    <p>Lectures, seminars, and educational events</p>
+                </div>
+                <div class="category-card" data-category="sports">
+                    <i class="fas fa-trophy"></i>
+                    <h3>Sports</h3>
+                    <p>Matches, tournaments, and athletic events</p>
+                </div>
+                <div class="category-card" data-category="cultural">
+                    <i class="fas fa-theater-masks"></i>
+                    <h3>Cultural</h3>
+                    <p>Festivals, performances, and cultural celebrations</p>
+                </div>
+                <div class="category-card" data-category="social">
+                    <i class="fas fa-users"></i>
+                    <h3>Social</h3>
+                    <p>Networking events and social gatherings</p>
+                </div>
+                <div class="category-card" data-category="workshop">
+                    <i class="fas fa-tools"></i>
+                    <h3>Workshop</h3>
+                    <p>Skill-building and training sessions</p>
+                </div>
+                <div class="category-card" data-category="seminar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>Seminar</h3>
+                    <p>Professional development and industry talks</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="about-content">
+                <h2>About Badya University Events</h2>
+                <p>Badya University Events is your gateway to an enriching campus experience. From academic lectures to cultural festivals, sports tournaments to skill-building workshops, we bring you a diverse range of events that cater to every interest and passion.</p>
+                <p>Our platform makes it easy to discover, book, and attend university events. Join our vibrant community and be part of unforgettable experiences that shape your university journey.</p>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <form id="contact-form">
+                <input type="text" placeholder="Name" required>
+                <input type="email" placeholder="Email" required>
+                <input type="tel" placeholder="Phone Number" required>
+                <textarea placeholder="Message" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Badya Uni Events</h3>
+                <p>Badya University<br>Academic City, UAE</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#categories">Categories</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Badya University Events. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Event Details Modal -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="event-details">
+                <!-- Event details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Book Event</h2>
+            <form id="booking-form">
+                <input type="text" id="student-name" placeholder="Full Name" required>
+                <input type="text" id="student-id" placeholder="Student ID" required>
+                <input type="email" id="student-email" placeholder="Email" required>
+                <input type="number" id="ticket-quantity" placeholder="Number of Tickets" min="1" max="1" value="1" required>
+                <div id="booking-payment-section" class="booking-payment-section" hidden>
+                    <p class="booking-payment-label">Payment method <span class="booking-payment-hint">(paid events)</span></p>
+                    <label class="booking-payment-option"><input type="radio" name="payment-method" value="VISA"> Visa (card)</label>
+                    <label class="booking-payment-option"><input type="radio" name="payment-method" value="CASH"> Cash</label>
+                    <p class="visa-demo-disclaimer">Visa details are validated in your browser only and are not stored or sent to the server (demo).</p>
+                    <div id="visa-payment-details" class="visa-payment-details" hidden>
+                        <p class="booking-payment-label">Visa card</p>
+                        <input type="text" id="visa-card-name" autocomplete="cc-name" placeholder="Name on card" maxlength="80">
+                        <input type="text" id="visa-card-number" autocomplete="off" placeholder="Card number" inputmode="numeric" maxlength="23">
+                        <div class="visa-card-row">
+                            <input type="text" id="visa-card-expiry" autocomplete="off" placeholder="MM / YY" maxlength="7">
+                            <input type="password" id="visa-card-cvc" autocomplete="off" placeholder="CVC" maxlength="4" inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="booking-submit-btn">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- WhatsApp Phone Number Modal (shown once before first booking) -->
+    <div id="whatsapp-phone-modal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 440px; text-align: center;">
+            <span class="close-modal" id="close-whatsapp-modal">&times;</span>
+            <div style="margin-bottom: 18px;">
+                <i class="fab fa-whatsapp" style="font-size: 3rem; color: #25D366;"></i>
+            </div>
+            <h2 style="margin-bottom: 8px;">WhatsApp Number Required</h2>
+            <p style="color: #aaa; font-size: 0.92rem; margin-bottom: 18px;">
+                We need your WhatsApp number to send you booking confirmations and event updates.
+                <strong>This can only be set once.</strong>
+            </p>
+            <form id="whatsapp-phone-form" autocomplete="off">
+                <input type="tel" id="whatsapp-phone-input" inputmode="numeric"
+                       placeholder="e.g. 201001234567" required
+                       pattern="^\+?\d{6,15}$"
+                       style="width: 100%; padding: 12px; font-size: 1.05rem; border-radius: 8px; border: 1px solid #555; background: rgba(255,255,255,0.07); color: #fff; margin-bottom: 10px; box-sizing: border-box;">
+                <p id="whatsapp-phone-error" style="color: #ef4444; font-size: 0.85rem; margin-bottom: 10px; display: none;"></p>
+                <button type="submit" id="whatsapp-phone-submit" style="width: 100%; padding: 12px; font-size: 1rem; border-radius: 8px; border: none; background: #25D366; color: #fff; font-weight: 700; cursor: pointer; transition: background 0.2s;">
+                    Save & Continue Booking
+                </button>
+            </form>
+            <p style="color: #777; font-size: 0.78rem; margin-top: 12px;">
+                <i class="fas fa-lock"></i> Your number is stored securely and cannot be changed later.
+            </p>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+            </div>
+            <div id="cart-items" class="cart-items">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <div id="cart-total" class="cart-total">
+                <h3>Order Summary</h3>
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>$0.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Total:</span>
+                    <span>$0.00</span>
+                </div>
+                <button id="checkout-btn">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal (Admin Only) -->
+    <div id="add-event-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Add New Event</h2>
+            <form id="add-event-form">
+                <input type="text" id="event-title" placeholder="Event Title" required>
+                <textarea id="event-description" placeholder="Description" rows="4" required></textarea>
+                <select id="event-category" required>
+                    <option value="">Select Category</option>
+                    <option value="academic">Academic</option>
+                    <option value="sports">Sports</option>
+                    <option value="cultural">Cultural</option>
+                    <option value="social">Social</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="seminar">Seminar</option>
+                </select>
+                <input type="date" id="event-date" required>
+                <input type="time" id="event-time" required>
+                <input type="text" id="event-venue" placeholder="Venue" required>
+                <input type="number" id="event-capacity" placeholder="Capacity" min="1" required>
+                <input type="number" id="event-price" placeholder="Price per ticket" step="0.01" min="0" required>
+                <div class="form-group">
+                    <label for="event-file-upload">Event Image or Video</label>
+                    <input type="file" id="event-file-upload" accept="image/*,video/*" class="form-control">
+                    <small style="color: #666;">Select an image or video file for the event</small>
+                </div>
+                <input type="hidden" id="event-image">
+                <input type="text" id="event-organizer" placeholder="Organizer" required>
+                <input type="email" id="event-contact-email" placeholder="Contact Email" required>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="display: block; margin-bottom: 8px;">Target Audience (Faculties)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 5px;">
+                        <label><input type="checkbox" class="target-faculty" value="All"> All Faculties</label>
+                        <label><input type="checkbox" class="target-faculty" value="Computer Science"> Computer Science</label>
+                        <label><input type="checkbox" class="target-faculty" value="Engineering"> Engineering</label>
+                        <label><input type="checkbox" class="target-faculty" value="Business"> Business</label>
+                        <label><input type="checkbox" class="target-faculty" value="Medicine"> Medicine</label>
+                        <label><input type="checkbox" class="target-faculty" value="Arts"> Arts</label>
+                    </div>
+                </div>
+                <button type="submit">Create Event</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

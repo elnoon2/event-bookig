@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Badya Uni Events</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Editable phone (WhatsApp) row */
+        .phone-dd { margin-bottom: .25rem; }
+        .phone-view { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+        .phone-edit-btn {
+            background: transparent;
+            border: 1px solid var(--primary-color, #a81c1c);
+            color: var(--primary-color, #a81c1c);
+            border-radius: 6px; padding: .22rem .8rem;
+            font-size: .82rem; cursor: pointer; line-height: 1.2;
+        }
+        .phone-edit-btn:hover { background: rgba(168, 28, 28, .08); }
+        .phone-edit-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-top: .55rem; }
+        .phone-edit-row input {
+            flex: 1 1 180px; min-width: 160px;
+            padding: .5rem .65rem; border: 1px solid #c7ccd6;
+            border-radius: 8px; font-size: .95rem;
+        }
+        .phone-edit-actions { display: flex; gap: .45rem; }
+        .phone-save-btn {
+            background: var(--primary-color, #a81c1c); color: #fff; border: none;
+            border-radius: 8px; padding: .5rem 1.05rem; font-weight: 600; cursor: pointer;
+        }
+        .phone-save-btn:disabled { opacity: .6; cursor: not-allowed; }
+        .phone-cancel-btn {
+            background: transparent; border: 1px solid #aab; color: inherit;
+            border-radius: 8px; padding: .5rem .9rem; cursor: pointer;
+        }
+        .phone-msg { display: block; margin-top: .45rem; font-size: .85rem; font-weight: 600; }
+        .phone-msg.ok { color: #16a34a; }
+        .phone-msg.err { color: #dc2626; }
+        /* The hidden attribute must win over the display rules above. */
+        .phone-edit-row[hidden], .phone-msg[hidden] { display: none !important; }
+    </style>
+</head>
+<body class="profile-page-moodle">
+    <header class="profile-site-header">
+        <a href="index.html" class="profile-site-logo">Badya Uni Events</a>
+        <nav class="profile-site-nav">
+            <a href="index.html">Home</a>
+            <a href="index.html#events">Events</a>
+            <button type="button" class="profile-site-signout sign-out-btn">Sign out</button>
+        </nav>
+    </header>
+
+    <div class="moodle-profile-backdrop">
+        <div class="moodle-profile-shell">
+            <div class="moodle-profile-toolbar">
+                <button type="button" class="moodle-reset-btn" id="reset-layout-btn" title="Restore default layout">Reset page to default</button>
+            </div>
+
+            <div class="moodle-profile-hero">
+                <div class="moodle-avatar" id="profile-avatar" aria-hidden="true">
+                    <span id="profile-avatar-initials">?</span>
+                </div>
+                <div class="moodle-hero-main">
+                    <h1 class="moodle-profile-name" id="profile-display-name">—</h1>
+                    <button type="button" class="moodle-btn-message" id="btn-message" title="Send a message">
+                        <i class="fas fa-comment-dots" aria-hidden="true"></i>
+                        Message
+                    </button>
+                </div>
+            </div>
+
+            <div class="moodle-profile-grid">
+                <div class="moodle-col moodle-col-left">
+                    <article class="moodle-card">
+                        <div class="moodle-card-head">
+                            <h2 class="moodle-card-title">User details</h2>
+                            <a href="#" class="moodle-card-action" id="edit-profile-link">Edit profile</a>
+                        </div>
+                        <dl class="moodle-dl">
+                            <dt>Email address</dt>
+                            <dd>
+                                <span id="field-email">—</span>
+                                <p class="moodle-field-note">This address may be visible to event organizers when you book.</p>
+                            </dd>
+                            <dt>Faculty / Major</dt>
+                            <dd id="field-faculty">—</dd>
+                            <dt>Phone (WhatsApp)</dt>
+                            <dd class="phone-dd">
+                                <div class="phone-view">
+                                    <span id="field-phone">—</span>
+                                    <button type="button" id="edit-phone-btn" class="phone-edit-btn">Edit</button>
+                                </div>
+                                <div id="phone-edit-box" class="phone-edit-row" hidden>
+                                    <input type="tel" id="phone-input" inputmode="numeric" autocomplete="tel"
+                                           placeholder="e.g. 201001234567">
+                                    <div class="phone-edit-actions">
+                                        <button type="button" id="save-phone-btn" class="phone-save-btn">Save</button>
+                                        <button type="button" id="cancel-phone-btn" class="phone-cancel-btn">Cancel</button>
+                                    </div>
+                                </div>
+                                <span id="phone-msg" class="phone-msg" hidden></span>
+                                <p class="moodle-field-note">Microsoft doesn't share a WhatsApp number — add yours here for event reminders.</p>
+                            </dd>
+                            <dt>Student ID</dt>
+                            <dd id="field-student-id">—</dd>
+                            <dt>Country</dt>
+                            <dd id="field-country">Egypt</dd>
+                            <dt>City/town</dt>
+                            <dd id="field-city">Cairo</dd>
+                            <dt>Timezone</dt>
+                            <dd id="field-timezone">Africa/Cairo</dd>
+                        </dl>
+                    </article>
+
+                    <article class="moodle-card">
+                        <div class="moodle-card-head">
+                            <h2 class="moodle-card-title">Privacy and policies</h2>
+                            <a href="#" class="moodle-card-action">Data retention summary</a>
+                        </div>
+                        <p class="moodle-card-muted">Review how your data is used for event bookings and attendance.</p>
+                    </article>
+
+                    <article class="moodle-card" id="event-history">
+                        <div class="moodle-card-head">
+                            <h2 class="moodle-card-title">Event History</h2>
+                        </div>
+                        <h3 class="moodle-subheading">Registered events</h3>
+                        <ul class="moodle-course-list" id="registered-events-list">
+                            <li class="moodle-loading">Loading your events…</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="moodle-col moodle-col-right">
+                    <article class="moodle-card">
+                        <h2 class="moodle-card-title">Miscellaneous</h2>
+                        <ul class="moodle-link-list">
+                            <li><a href="index.html#events"><i class="fas fa-calendar-alt" aria-hidden="true"></i> Browse events</a></li>
+                            <li><a href="index.html#contact"><i class="fas fa-envelope" aria-hidden="true"></i> Contact</a></li>
+                            <li><a href="#event-history"><i class="fas fa-ticket-alt" aria-hidden="true"></i> My registrations</a></li>
+                        </ul>
+                    </article>
+
+                    <article class="moodle-card">
+                        <h2 class="moodle-card-title">Reports</h2>
+                        <ul class="moodle-link-list">
+                            <li><a href="#event-history"><i class="fas fa-list" aria-hidden="true"></i> Booking overview</a></li>
+                            <li><a href="index.html"><i class="fas fa-home" aria-hidden="true"></i> Site home</a></li>
+                        </ul>
+                    </article>
+
+                    <article class="moodle-card">
+                        <h2 class="moodle-card-title">Login activity</h2>
+                        <dl class="moodle-dl moodle-dl-compact">
+                            <dt>First access to site</dt>
+                            <dd id="first-access">—</dd>
+                            <dt>Last access to site</dt>
+                            <dd id="last-access">—</dd>
+                        </dl>
+                    </article>
+
+                    <article class="moodle-card moodle-card-qr">
+                        <h2 class="moodle-card-title">Profile QR</h2>
+                        <h3 class="moodle-subheading">Opens this student's profile</h3>
+                        <p class="moodle-qr-intro">
+                            Scan this QR code to open the student's profile page directly.
+                        </p>
+                        <div class="moodle-qr-wrap">
+                            <img id="profile-link-qr-img" class="moodle-qr-image" alt="QR code that opens this profile" width="200" height="200" hidden>
+                            <p id="profile-link-qr-fallback" class="moodle-qr-fallback">Loading profile QR code…</p>
+                        </div>
+                    </article>
+
+                    <article class="moodle-card moodle-card-qr">
+                        <h2 class="moodle-card-title">Attendance QR</h2>
+                        <h3 class="moodle-subheading">QR code for event attendance</h3>
+                        <p class="moodle-qr-intro">
+                            This code refreshes automatically and expires for security. When you arrive, staff scan it to register your attendance.
+                            You must have a booking for that event.
+                        </p>
+                        <div class="moodle-qr-wrap">
+                            <img id="student-qr-img" class="moodle-qr-image" alt="Your student attendance QR code" width="200" height="200" hidden>
+                            <p id="student-qr-fallback" class="moodle-qr-fallback">Loading your QR code…</p>
+                        </div>
+                        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+                            <button type="button" class="moodle-reset-btn" id="refresh-attendance-qr-btn">Refresh attendance QR</button>
+                            <span id="attendance-qr-status" style="font-weight:bold;padding:4px 8px;border-radius:4px;font-size:0.85rem;background-color:#555;color:#fff;">Status: Loading...</span>
+                            <span class="moodle-card-muted" id="attendance-qr-expiry"></span>
+                        </div>
+                        <p class="moodle-card-muted moodle-qr-hint">Tip: Screenshot or print this page for faster check-in at the venue.</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Modal -->
+    <div id="ticket-modal" class="modal" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); justify-content: center; align-items: center;">
+        <div class="modal-content" style="max-width: 420px; text-align: center; background: rgba(30, 30, 45, 0.98); border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6); border-radius: 16px; color: #fff; padding: 25px; margin: 10% auto; position: relative;">
+            <span class="close-modal" id="close-ticket-modal" style="cursor: pointer; position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; color: #aaa; transition: color 0.2s;">&times;</span>
+            <h2 style="margin-bottom: 15px; color: var(--primary-color, #a81c1c); font-size: 1.8rem; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;"><i class="fas fa-ticket-alt"></i> Your Ticket</h2>
+            <div id="ticket-modal-details" style="margin-bottom: 20px; text-align: left; font-size: 0.95rem; line-height: 1.6; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                <!-- Filled dynamically -->
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 12px; display: inline-block; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <img id="ticket-qr-img" style="display: block; max-width: 200px; height: 200px; margin: 0 auto;" alt="Ticket QR Code">
+            </div>
+            <div>
+                <button type="button" class="moodle-reset-btn" id="download-ticket-btn" style="background: var(--primary-color, #a81c1c); color: white; width: 100%; padding: 12px; font-size: 1rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: background 0.2s;">Download QR Code</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+            ? window.location.origin
+            : 'http://localhost:5000';
+
+        function initialsFromName(name) {
+            if (!name || !name.trim()) return '?';
+            const parts = name.trim().split(/\s+/).filter(Boolean);
+            if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        function formatDateTime(d) {
+            try {
+                return new Date(d).toLocaleString(undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short'
+                });
+            } catch {
+                return '—';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const viewedUserId = params.get('userId') || params.get('id');
+            const raw = localStorage.getItem('currentUser');
+            let user = raw ? JSON.parse(raw) : null;
+
+            const isScanView = !!viewedUserId && (!user || String(user.id) !== String(viewedUserId));
+            if (!user && !viewedUserId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            if (user && user.role === 'admin' && !viewedUserId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            if (isScanView) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/users/${encodeURIComponent(viewedUserId)}`);
+                    if (!res.ok) throw new Error('not ok');
+                    user = await res.json();
+                } catch {
+                    window.location.href = 'index.html';
+                    return;
+                }
+            }
+
+            const listEl = document.getElementById('registered-events-list');
+            const qrImg = document.getElementById('student-qr-img');
+            const qrFallback = document.getElementById('student-qr-fallback');
+            const linkQrImg = document.getElementById('profile-link-qr-img');
+            const linkQrFallback = document.getElementById('profile-link-qr-fallback');
+
+            document.getElementById('profile-display-name').textContent = user.name || 'Student';
+            document.getElementById('profile-avatar-initials').textContent = initialsFromName(user.name);
+            document.getElementById('field-email').textContent = user.email || '—';
+            document.getElementById('field-faculty').textContent = user.faculty || '—';
+            document.getElementById('field-phone').textContent = user.phone || '—';
+            document.getElementById('field-student-id').textContent = user.studentId || '—';
+
+            // Show the Microsoft Graph profile photo in the avatar when available.
+            const photo = user.photoUrl;
+            if (photo && (photo.startsWith('data:image/') || photo.startsWith('http'))) {
+                const avatarEl = document.getElementById('profile-avatar');
+                if (avatarEl) {
+                    avatarEl.innerHTML = '<img src="' + photo + '" alt="" referrerpolicy="no-referrer" '
+                        + 'style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">';
+                }
+            }
+
+            // --- Editable phone (Microsoft doesn't provide a WhatsApp number) ---
+            // Phone is IMMUTABLE after first save. If already set, hide all editing controls.
+            (function setupPhoneEditing() {
+                const editBtn = document.getElementById('edit-phone-btn');
+                const box = document.getElementById('phone-edit-box');
+                const input = document.getElementById('phone-input');
+                const saveBtn = document.getElementById('save-phone-btn');
+                const cancelBtn = document.getElementById('cancel-phone-btn');
+                const display = document.getElementById('field-phone');
+                const msg = document.getElementById('phone-msg');
+                const noteEl = document.querySelector('.phone-dd .moodle-field-note');
+                if (!editBtn || !box || !input || !saveBtn || !cancelBtn || !display) return;
+
+                // An admin viewing someone else's profile can't edit it.
+                if (typeof viewedUserId !== 'undefined' && viewedUserId && String(viewedUserId) !== String(user.id)) {
+                    editBtn.style.display = 'none';
+                    return;
+                }
+
+                // Check if phone is already set — if so, hide Edit completely (immutable)
+                const phoneAlreadySet = user.phone && user.phone.trim() !== '' && user.phone !== '—';
+                if (phoneAlreadySet) {
+                    editBtn.style.display = 'none';
+                    box.hidden = true;
+                    if (noteEl) noteEl.textContent = 'Your WhatsApp number is set and cannot be changed.';
+                    return;
+                }
+
+                function setMsg(text, kind) {
+                    if (!msg) return;
+                    msg.textContent = text || '';
+                    msg.className = 'phone-msg' + (kind ? ' ' + kind : '');
+                    msg.hidden = !text;
+                }
+                const openEditor = () => {
+                    input.value = '';
+                    box.hidden = false;
+                    editBtn.hidden = true;
+                    setMsg('');
+                    input.focus();
+                };
+                const closeEditor = () => { box.hidden = true; editBtn.hidden = false; };
+                editBtn.addEventListener('click', openEditor);
+                cancelBtn.addEventListener('click', closeEditor);
+                input.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveBtn.click(); });
+
+                saveBtn.addEventListener('click', async () => {
+                    const newPhone = input.value.trim();
+                    if (!newPhone || !/^\+?\d{6,15}$/.test(newPhone)) {
+                        setMsg('Enter digits only, e.g. 201001234567.', 'err');
+                        return;
+                    }
+                    if (!user.id) {
+                        setMsg('Your session is missing an account id — please sign in again.', 'err');
+                        return;
+                    }
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = 'Saving…';
+                    try {
+                        // Use the one-time phone endpoint
+                        const res = await fetch(`${API_BASE_URL}/api/users/${encodeURIComponent(user.id)}/phone`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ phone: newPhone })
+                        });
+                        if (!res.ok) {
+                            let m = 'Save failed (' + res.status + ').';
+                            try { const e = await res.json(); if (e && e.message) m = e.message; } catch (x) {}
+                            throw new Error(m);
+                        }
+                        // Persist into the stored session so the rest of the app sees the new phone.
+                        user.phone = newPhone;
+                        const cur = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                        cur.phone = newPhone;
+                        localStorage.setItem('currentUser', JSON.stringify(cur));
+                        display.textContent = newPhone || '—';
+                        // Phone is now set — hide editing permanently
+                        closeEditor();
+                        editBtn.style.display = 'none';
+                        if (noteEl) noteEl.textContent = 'Your WhatsApp number is set and cannot be changed.';
+                        setMsg('Saved ✓', 'ok');
+                        setTimeout(() => setMsg(''), 2500);
+                    } catch (e) {
+                        setMsg(e.message || 'Could not save. Please try again.', 'err');
+                    } finally {
+                        saveBtn.disabled = false;
+                        saveBtn.textContent = 'Save';
+                    }
+                });
+            })();
+
+            const signOutBtn = document.querySelector('.profile-site-signout');
+            if (isScanView && signOutBtn) {
+                signOutBtn.hidden = true;
+            }
+
+            const firstKey = 'siteFirstAccess';
+            const now = new Date().toISOString();
+            if (!localStorage.getItem(firstKey)) {
+                localStorage.setItem(firstKey, now);
+            }
+            document.getElementById('first-access').textContent = formatDateTime(localStorage.getItem(firstKey));
+            document.getElementById('last-access').textContent = formatDateTime(now);
+            localStorage.setItem('siteLastAccess', now);
+
+            if (user.id) {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/users/${encodeURIComponent(user.id)}`);
+                    if (res.ok) {
+                        const full = await res.json();
+                        user = { ...user, ...full };
+                        if (!isScanView) {
+                            localStorage.setItem('currentUser', JSON.stringify(user));
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Could not refresh profile from API', e);
+                }
+            }
+
+            async function ensureProfileQr() {
+                const userId = user.id || user.email || 'unknown-user';
+                const profileUrl = `${window.location.origin}${window.location.pathname}?userId=${encodeURIComponent(userId)}`;
+                
+                try {
+                    if (user.id) {
+                        const res = await fetch(`${API_BASE_URL}/api/users/${encodeURIComponent(user.id)}/qr-profile`);
+                        if (res.ok) {
+                            const blob = await res.blob();
+                            linkQrImg.src = URL.createObjectURL(blob);
+                            linkQrImg.hidden = false;
+                            linkQrFallback.hidden = true;
+                            return;
+                        }
+                    }
+                    throw new Error('Fallback to external API');
+                } catch {
+                    // Fallback to QR server
+                    linkQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(profileUrl)}`;
+                    linkQrImg.hidden = false;
+                    linkQrFallback.hidden = true;
+                }
+            }
+
+            async function ensureAttendanceQr() {
+                qrFallback.textContent = 'Loading your QR code…';
+                qrFallback.hidden = false;
+                qrImg.hidden = true;
+                const expiryEl = document.getElementById('attendance-qr-expiry');
+                const statusEl = document.getElementById('attendance-qr-status');
+                if (expiryEl) expiryEl.textContent = '';
+                if (statusEl) {
+                    statusEl.textContent = 'Status: Loading...';
+                    statusEl.style.backgroundColor = '#555';
+                    statusEl.style.color = '#fff';
+                }
+                
+                const userId = user.id || user.email || 'unknown-user';
+                const attendanceData = JSON.stringify({ userId: userId, timestamp: Date.now() });
+
+                try {
+                    if (user.id) {
+                        const res = await fetch(`${API_BASE_URL}/api/users/${encodeURIComponent(user.id)}/qr-attendance?ts=${Date.now()}`);
+                        if (res.ok) {
+                            const blob = await res.blob();
+                            qrImg.src = URL.createObjectURL(blob);
+                            qrImg.hidden = false;
+                            qrFallback.hidden = true;
+                            
+                            const expiresAt = res.headers.get('X-Token-Expires-At');
+                            if (expiryEl && expiresAt) {
+                                try {
+                                    const date = new Date(expiresAt);
+                                    expiryEl.textContent = `Expires at: ${date.toLocaleTimeString()}`;
+                                } catch (e) {
+                                    expiryEl.textContent = `Expires at: ${expiresAt}`;
+                                }
+                            }
+
+                            // Fetch QR status
+                            try {
+                                const statRes = await fetch(`${API_BASE_URL}/api/users/${encodeURIComponent(user.id)}/qr-status`);
+                                if (statRes.ok) {
+                                    const statData = await statRes.json();
+                                    const status = statData.status; // ACTIVE, USED, EXPIRED
+                                    if (statusEl) {
+                                        statusEl.textContent = `Status: ${status}`;
+                                        if (status === 'ACTIVE') {
+                                            statusEl.style.backgroundColor = '#10b981'; // Green
+                                        } else if (status === 'USED') {
+                                            statusEl.style.backgroundColor = '#3b82f6'; // Blue
+                                        } else {
+                                            statusEl.style.backgroundColor = '#ef4444'; // Red
+                                        }
+                                    }
+                                }
+                            } catch (statErr) {
+                                console.warn('Could not fetch QR status', statErr);
+                            }
+                            return;
+                        }
+                    }
+                    throw new Error('Fallback to external API');
+                } catch {
+                    // Fallback to QR server - encode a valid scan URL using user's static token/id
+                    const fallbackToken = user.qrToken || user.id || 'unknown-user';
+                    const fallbackUrl = `${API_BASE_URL}/attendance/scan?token=${encodeURIComponent(fallbackToken)}`;
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fallbackUrl)}`;
+                    qrImg.hidden = false;
+                    qrFallback.hidden = true;
+                    if (expiryEl) {
+                        const date = new Date(Date.now() + 5 * 60000); // 5 mins expiry
+                        expiryEl.textContent = `Expires at: ${date.toLocaleTimeString()} (Offline Mode)`;
+                    }
+                    if (statusEl) {
+                        statusEl.textContent = 'Status: ACTIVE (Offline Mode)';
+                        statusEl.style.backgroundColor = '#10b981';
+                    }
+                }
+            }
+
+            await ensureProfileQr();
+            await ensureAttendanceQr();
+
+            document.getElementById('refresh-attendance-qr-btn')?.addEventListener('click', async () => {
+                await ensureAttendanceQr();
+            });
+
+            const email = encodeURIComponent(user.email || '');
+            if (email) {
+                try {
+                    const bRes = await fetch(`${API_BASE_URL}/api/events/bookings/student/${email}`);
+                    if (bRes.ok) {
+                        const bookings = await bRes.json();
+                        listEl.innerHTML = '';
+                        if (!bookings.length) {
+                            listEl.innerHTML = '<li class="moodle-empty">You are not registered for any events yet.</li>';
+                        } else {
+                            bookings.forEach((b, i) => {
+                                const ev = b.event || {};
+                                const title = ev.title || 'Event';
+                                const code = `EV ${String(ev.id != null ? ev.id : i + 1).padStart(3, '0')}`;
+                                const li = document.createElement('li');
+                                li.className = 'moodle-course-item';
+                                li.style.display = 'flex';
+                                li.style.justifyContent = 'space-between';
+                                li.style.alignItems = 'center';
+                                li.style.padding = '12px 10px';
+                                li.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+                                
+                                const ticketId = b.id;
+                                let qrButtonHtml = '';
+                                if (ticketId) {
+                                    qrButtonHtml = `
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" class="moodle-reset-btn view-ticket-btn" data-booking-id="${ticketId}" style="margin: 0; padding: 6px 12px; font-size: 0.85rem; background: var(--primary-color); border: none; border-radius: 4px; color: white;">View Ticket</button>
+                                            ${b.ticketStatus === 'ACTIVE' ? `<button type="button" class="moodle-reset-btn cancel-booking-btn" data-booking-id="${ticketId}" style="margin: 0; padding: 6px 12px; font-size: 0.85rem; background: #555; border: 1px solid #777; border-radius: 4px; color: white;">Cancel</button>` : ''}
+                                        </div>
+                                    `;
+                                }
+
+                                li.innerHTML = `
+                                    <div>
+                                        <span class="moodle-course-code">${code}</span> — <strong>${escapeHtml(title)}</strong>
+                                        <div style="font-size:0.82em; color:#bbb; margin-top:4px;">
+                                            Status: <span style="color: ${b.ticketStatus === 'USED' ? '#ef4444' : '#10b981'}; font-weight:bold;">${b.ticketStatus || 'ACTIVE'}</span> 
+                                            | Date: ${formatDateTime(b.bookingDate)}
+                                        </div>
+                                    </div>
+                                    ${qrButtonHtml}
+                                `;
+                                listEl.appendChild(li);
+                            });
+                        }
+                    } else {
+                        throw new Error('bookings failed');
+                    }
+                } catch {
+                    listEl.innerHTML = '<li class="moodle-empty">Failed to load booking history. Please make sure the server is running.</li>';
+                }
+            } else {
+                listEl.innerHTML = '<li class="moodle-empty">Add an email to your account to see events.</li>';
+            }
+
+            document.getElementById('btn-message').addEventListener('click', () => {
+                const em = user.email || '';
+                if (em) window.location.href = `mailto:${em}?subject=Badya%20Uni%20Events`;
+            });
+
+            document.getElementById('edit-profile-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('Profile editing will be available in a future update. For now, contact support to change your details.');
+            });
+
+            document.getElementById('reset-layout-btn').addEventListener('click', () => {
+                window.location.reload();
+            });
+
+            if (!isScanView) {
+                document.querySelector('.profile-site-signout').addEventListener('click', () => {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'index.html';
+                });
+            }
+
+            // Ticket QR View & Download logic
+            document.addEventListener('click', async (e) => {
+                if (e.target.classList.contains('view-ticket-btn')) {
+                    const bookingId = e.target.getAttribute('data-booking-id');
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/api/events/bookings/${bookingId}`);
+                        if (res.ok) {
+                            const b = await res.json();
+                            const ev = b.event || {};
+                            document.getElementById('ticket-modal-details').innerHTML = `
+                                <strong>Event:</strong> ${escapeHtml(ev.title || 'Event')}<br>
+                                <strong>Date/Time:</strong> ${formatDateTime(ev.date)} at ${ev.time}<br>
+                                <strong>Venue:</strong> ${escapeHtml(ev.venue || '')}<br>
+                                <strong>Ticket ID:</strong> ${b.id}<br>
+                                <strong>Attendee:</strong> ${escapeHtml(b.studentName)}<br>
+                                <strong>Email:</strong> ${escapeHtml(b.studentEmail)}<br>
+                                <strong>Status:</strong> <span style="color: ${b.ticketStatus === 'USED' ? '#ef4444' : '#10b981'}; font-weight: bold;">${b.ticketStatus || 'ACTIVE'}</span>
+                            `;
+                            const qrUrl = `${API_BASE_URL}/api/events/bookings/${bookingId}/qr`;
+                            document.getElementById('ticket-qr-img').src = qrUrl;
+                            
+                            const modal = document.getElementById('ticket-modal');
+                            modal.style.display = 'flex';
+                            
+                            // Download button handler
+                            document.getElementById('download-ticket-btn').onclick = async () => {
+                                const dlRes = await fetch(qrUrl);
+                                const blob = await dlRes.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `ticket-${bookingId}-qr.png`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                window.URL.revokeObjectURL(url);
+                            };
+                        }
+                    } catch (err) {
+                        console.error('Failed to load ticket details', err);
+                        alert('Could not retrieve ticket details. Check if the backend is running.');
+                    }
+                }
+            });
+
+            // Cancel Booking logic
+            document.addEventListener('click', async (e) => {
+                if (e.target.classList.contains('cancel-booking-btn')) {
+                    const bookingId = e.target.getAttribute('data-booking-id');
+                    if (!confirm('Are you sure you want to cancel this booking? This will notify you on WhatsApp.')) {
+                        return;
+                    }
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/api/events/bookings/${bookingId}`, {
+                            method: 'DELETE'
+                        });
+                        if (res.ok) {
+                            alert('Booking cancelled successfully.');
+                            window.location.reload();
+                        } else {
+                            alert('Failed to cancel booking.');
+                        }
+                    } catch (err) {
+                        console.error('Failed to cancel booking', err);
+                        alert('Error cancelling booking. Check if backend is running.');
+                    }
+                }
+            });
+
+            document.getElementById('close-ticket-modal')?.addEventListener('click', () => {
+                document.getElementById('ticket-modal').style.display = 'none';
+            });
+            window.addEventListener('click', (e) => {
+                const modal = document.getElementById('ticket-modal');
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        function escapeHtml(text) {
+            const d = document.createElement('div');
+            d.textContent = text;
+            return d.innerHTML;
+        }
+    </script>
+</body>
+</html>

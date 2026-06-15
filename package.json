@@ -1,0 +1,9 @@
+{
+  "name": "badya-uni-events",
+  "version": "1.0.0",
+  "description": "Event booking system for Badya University",
+  "private": true,
+  "scripts": {
+    "start:whatsapp": "cd whatsapp-service && node index.js"
+  }
+}
