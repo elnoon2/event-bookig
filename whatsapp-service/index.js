@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const SESSION_PATH = path.resolve(__dirname, 'sessions');
 
 app.use(express.json());
@@ -147,26 +147,31 @@ async function startWhatsAppClient() {
     // 1. Clean stale locks — session DATA is preserved
     cleanStaleLockFiles();
 
+    const puppeteerOpts = {
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu',
+            '--disable-extensions',
+            '--disable-features=FirstPartySets',
+            '--disable-features=LayoutNG'
+        ]
+    };
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        puppeteerOpts.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+
     // 2. Build client with LocalAuth for persistent sessions
     client = new Client({
         authStrategy: new LocalAuth({
             dataPath: SESSION_PATH
         }),
-        puppeteer: {
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--no-first-run',
-                '--no-zygote',
-                '--disable-gpu',
-                '--disable-extensions',
-                '--disable-features=FirstPartySets',
-                '--disable-features=LayoutNG'
-            ]
-        }
+        puppeteer: puppeteerOpts
     });
 
     // ── Event handlers ──
