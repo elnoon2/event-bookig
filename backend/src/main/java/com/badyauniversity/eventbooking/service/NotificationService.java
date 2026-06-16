@@ -103,8 +103,6 @@ public class NotificationService {
             return;
         }
 
-        String qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=" + java.net.URLEncoder.encode(attendanceToken, java.nio.charset.StandardCharsets.UTF_8);
-        
         String message = "Booking Confirmed!\n\n" +
                "Hello " + student.getName() + ",\n" +
                "Your booking for '" + event.getTitle() + "' is successful.\n\n" +
@@ -115,7 +113,8 @@ public class NotificationService {
                "Time: " + event.getTime().toString() + "\n" +
                "Venue: " + event.getVenue();
 
-        boolean success = whatsappService.sendMediaMessage(student.getPhone(), message, qrImageUrl);
+        // Send QR data directly — the WhatsApp microservice generates the image locally
+        boolean success = whatsappService.sendQrMessage(student.getPhone(), message, attendanceToken);
         
         // Audit trail
         Notification notification = new Notification(student, event, student.getPhone(), "BOOKING_CONFIRMATION: " + message, success ? "SENT" : "FAILED");

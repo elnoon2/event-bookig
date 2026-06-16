@@ -62,6 +62,45 @@ public class WhatsAppService {
         }
     }
 
+    /**
+     * Sends a WhatsApp message with a QR code image generated server-side.
+     * Instead of passing a mediaUrl (external API), we pass the raw QR data
+     * and let the WhatsApp microservice generate the image locally.
+     */
+    public boolean sendQrMessage(String phone, String message, String qrData) {
+        System.out.println("[INFO] [BACKEND-WHATSAPP] Attempting to send WhatsApp QR message. Phone: " + phone + ", QR Data length: " + (qrData != null ? qrData.length() : 0));
+        try {
+            String url = whatsappServiceUrl + "/send-message";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> body = new HashMap<>();
+            body.put("phone", phone);
+            body.put("message", message);
+            if (qrData != null) {
+                body.put("qrData", qrData);
+            }
+
+            HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    url, HttpMethod.POST, request, MAP_TYPE);
+
+            System.out.println("[INFO] [BACKEND-WHATSAPP] Microservice response status: " + response.getStatusCode());
+            if (response.getStatusCode().is2xxSuccessful()) {
+                Map<String, Object> responseBody = response.getBody();
+                boolean success = Boolean.TRUE.equals(responseBody != null ? responseBody.get("success") : null);
+                System.out.println("[INFO] [BACKEND-WHATSAPP] Microservice response success flag: " + success);
+                return success;
+            }
+            return false;
+        } catch (Exception e) {
+            System.err.println("[ERROR] [BACKEND-WHATSAPP] WhatsApp QR Service Error: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean isServiceReady() {
         try {
             String url = whatsappServiceUrl + "/status";

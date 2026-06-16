@@ -1,5 +1,6 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const QRCode = require('qrcode');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -307,13 +308,15 @@ async function startWhatsAppClient() {
 // ─── API Endpoints ────────────────────────────────────────────────────────────
 
 app.post('/send-message', async (req, res) => {
-    const { phone, message, mediaUrl } = req.body;
+    const { phone, message, mediaUrl, qrData } = req.body;
 
     log('INFO', 'API', '────── New /send-message request ──────');
     log('INFO', 'API', `Phone: ${phone}`);
     log('INFO', 'API', `Message length: ${message ? message.length : 0}`);
-    log('INFO', 'API', `Has media: ${!!mediaUrl}`);
+    log('INFO', 'API', `Has media URL: ${!!mediaUrl}`);
+    log('INFO', 'API', `Has QR data: ${!!qrData}`);
     if (mediaUrl) log('INFO', 'API', `Media URL: ${mediaUrl}`);
+    if (qrData) log('INFO', 'API', `QR Data length: ${qrData.length}`);
 
     if (!isReady) {
         log('WARN', 'API', 'Service not ready — returning 503.');
@@ -323,11 +326,11 @@ app.post('/send-message', async (req, res) => {
         });
     }
 
-    if (!phone || (!message && !mediaUrl)) {
-        log('WARN', 'API', 'Missing phone or message/media — returning 400.');
+    if (!phone || (!message && !mediaUrl && !qrData)) {
+        log('WARN', 'API', 'Missing phone or message/media/qrData — returning 400.');
         return res.status(400).json({
             success: false,
-            message: 'Phone and (message or mediaUrl) are required.'
+            message: 'Phone and (message or mediaUrl or qrData) are required.'
         });
     }
 
@@ -336,7 +339,30 @@ app.post('/send-message', async (req, res) => {
         const chatId = cleanedPhone + '@c.us';
         log('INFO', 'API', `Formatted chatId: ${chatId}`);
 
-        if (mediaUrl) {
+        // Priority 1: Generate QR code image locally from qrData
+        if (qrData) {
+            log('INFO', 'API', 'Generating QR code image locally from qrData...');
+            try {
+                const qrBase64 = await QRCode.toDataURL(qrData, {
+                    width: 300,
+                    margin: 2,
+                    color: { dark: '#000000', light: '#FFFFFF' }
+                });
+                // qrBase64 is like: "data:image/png;base64,iVBOR..."
+                const base64Data = qrBase64.replace(/^data:image\/png;base64,/, '');
+                const media = new MessageMedia('image/png', base64Data, 'ticket-qr.png');
+                log('INFO', 'API', 'QR image generated. Sending with caption...');
+                await client.sendMessage(chatId, media, { caption: message });
+                log('INFO', 'API', `✅ QR media message sent to ${chatId}`);
+            } catch (qrError) {
+                log('ERROR', 'API', `QR generation/send failed: ${qrError.message}`);
+                log('INFO', 'API', 'Falling back to text-only message...');
+                await client.sendMessage(chatId, message);
+                log('INFO', 'API', `✅ Text fallback message sent to ${chatId}`);
+            }
+        }
+        // Priority 2: Fetch media from external URL
+        else if (mediaUrl) {
             log('INFO', 'API', 'Fetching media from URL...');
             try {
                 const media = await MessageMedia.fromUrl(mediaUrl, { unsafeMime: true });
@@ -349,7 +375,9 @@ app.post('/send-message', async (req, res) => {
                 await client.sendMessage(chatId, message);
                 log('INFO', 'API', `✅ Text fallback message sent to ${chatId}`);
             }
-        } else {
+        }
+        // Priority 3: Text only
+        else {
             log('INFO', 'API', 'Sending text message...');
             await client.sendMessage(chatId, message);
             log('INFO', 'API', `✅ Text message sent to ${chatId}`);
